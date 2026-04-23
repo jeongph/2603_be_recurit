@@ -6,6 +6,7 @@ import com.artinus.subscription.domain.PhoneNumber;
 import com.artinus.subscription.domain.SubscriptionChanged;
 import com.artinus.subscription.domain.SubscriptionState;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -24,8 +25,8 @@ public class SubscriptionEvent {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "phone_number", nullable = false, length = 16)
-    private String phoneNumber;
+    @Embedded
+    private PhoneNumber phoneNumber;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "state_from", nullable = false, length = 16)
@@ -53,7 +54,7 @@ public class SubscriptionEvent {
     }
 
     private SubscriptionEvent(
-            String phoneNumber,
+            PhoneNumber phoneNumber,
             SubscriptionState from,
             SubscriptionState to,
             Long channelId,
@@ -71,7 +72,7 @@ public class SubscriptionEvent {
 
     public static SubscriptionEvent succeeded(SubscriptionChanged event) {
         return new SubscriptionEvent(
-                event.phoneNumber().value(),
+                event.phoneNumber(),
                 event.from(),
                 event.to(),
                 event.channel().id(),
@@ -88,7 +89,7 @@ public class SubscriptionEvent {
             Operation operation,
             Instant occurredAt) {
         return new SubscriptionEvent(
-                phoneNumber.value(),
+                phoneNumber,
                 current,
                 attempted,
                 channel.id(),
@@ -98,7 +99,7 @@ public class SubscriptionEvent {
     }
 
     public Long id() { return id; }
-    public String phoneNumber() { return phoneNumber; }
+    public PhoneNumber phoneNumber() { return phoneNumber; }
     public SubscriptionState from() { return from; }
     public SubscriptionState to() { return to; }
     public Long channelId() { return channelId; }

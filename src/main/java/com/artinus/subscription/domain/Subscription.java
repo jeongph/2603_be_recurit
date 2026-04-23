@@ -37,7 +37,8 @@ public class Subscription {
         return new Subscription(phoneNumber, state);
     }
 
-    public SubscriptionChanged changeTo(SubscriptionState target, Channel channel, Operation op) {
+    public SubscriptionChanged changeTo(SubscriptionState target, Channel channel, Operation op,
+                                        Instant occurredAt) {
         // 채널 허용 검증이 먼저: "채널이 이 operation 자체를 못 하면 상태 전이는 볼 필요도 없다"
         if (!channel.supports(op)) {
             throw new ChannelNotAllowedException(channel, op);
@@ -47,7 +48,7 @@ public class Subscription {
         }
         SubscriptionState previous = this.state;
         this.state = target;
-        return new SubscriptionChanged(phoneNumber, previous, target, channel, op, Instant.now());
+        return new SubscriptionChanged(phoneNumber, previous, target, channel, op, occurredAt);
     }
 
     public PhoneNumber phoneNumber() {
