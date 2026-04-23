@@ -1,0 +1,14 @@
+.git
+.gitignore
+.gradle
+build
+out
+.idea
+*.iml
+docs
+.claude
+CLAUDE.md
+과제.md
+*.log
+.DS_Store
+.github
