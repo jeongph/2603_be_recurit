@@ -101,6 +101,13 @@ resilience4j:
         failureRateThreshold: 50
         waitDurationInOpenState: 30s
 
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+
 logging:
   level:
     com.artinus: INFO
