@@ -13,7 +13,8 @@ CREATE TABLE subscription_event (
     channel_id   BIGINT       NOT NULL,
     operation    VARCHAR(16)  NOT NULL,
     outcome      VARCHAR(16)  NOT NULL,
-    occurred_at  TIMESTAMP(6) NOT NULL,
+    -- DATETIME 은 세션 타임존에 영향받지 않고 있는 그대로 저장. 저장 규약은 UTC.
+    occurred_at  DATETIME(6)  NOT NULL,
     PRIMARY KEY (id),
     INDEX idx_event_phone_occurred (phone_number, occurred_at DESC)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
