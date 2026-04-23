@@ -26,8 +26,12 @@ ext {
             'com/artinus/Application.class',
             'com/artinus/**/config/**',
             'com/artinus/**/dto/**',
-            'com/artinus/plugin/csrng/**',
-            'com/artinus/plugin/llm/**'
+            // HTTP 클라이언트·외부 응답 DTO 는 smoke 테스트(실 API 호출)로 커버.
+            // Gate·Summarizer 같은 변환·분기 로직은 커버리지 대상.
+            'com/artinus/plugin/csrng/CsrngHttpClient*',
+            'com/artinus/plugin/csrng/CsrngResponse*',
+            'com/artinus/plugin/llm/ClaudeApiClient*',
+            'com/artinus/plugin/llm/ClaudeMessage*'
     ]
 }
 
