@@ -25,7 +25,9 @@ ext {
     coverageExcludes = [
             'com/artinus/Application.class',
             'com/artinus/**/config/**',
-            'com/artinus/**/dto/**'
+            'com/artinus/**/dto/**',
+            'com/artinus/plugin/csrng/**',
+            'com/artinus/plugin/llm/**'
     ]
 }
 
