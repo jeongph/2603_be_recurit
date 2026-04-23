@@ -14,12 +14,6 @@ java {
     }
 }
 
-configurations {
-    compileOnly {
-        extendsFrom annotationProcessor
-    }
-}
-
 repositories {
     mavenCentral()
 }
@@ -27,6 +21,12 @@ repositories {
 ext {
     resilience4jVersion = '2.2.0'
     springdocVersion = '2.6.0'
+    coverageMinimum = 0.70
+    coverageExcludes = [
+            'com/artinus/Application.class',
+            'com/artinus/**/config/**',
+            'com/artinus/**/dto/**'
+    ]
 }
 
 dependencies {
@@ -66,11 +66,7 @@ jacocoTestReport {
         html.required = true
     }
     classDirectories.setFrom(files(classDirectories.files.collect {
-        fileTree(dir: it, exclude: [
-            'com/artinus/Application.class',
-            'com/artinus/**/config/**',
-            'com/artinus/**/dto/**'
-        ])
+        fileTree(dir: it, exclude: coverageExcludes)
     }))
 }
 
@@ -80,16 +76,12 @@ jacocoTestCoverageVerification {
         rule {
             limit {
                 counter = 'LINE'
-                minimum = 0.70
+                minimum = coverageMinimum
             }
         }
     }
     classDirectories.setFrom(files(classDirectories.files.collect {
-        fileTree(dir: it, exclude: [
-            'com/artinus/Application.class',
-            'com/artinus/**/config/**',
-            'com/artinus/**/dto/**'
-        ])
+        fileTree(dir: it, exclude: coverageExcludes)
     }))
 }
 
