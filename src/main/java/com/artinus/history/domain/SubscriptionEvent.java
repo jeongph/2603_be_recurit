@@ -85,7 +85,8 @@ public class SubscriptionEvent {
             SubscriptionState current,
             SubscriptionState attempted,
             Channel channel,
-            Operation operation) {
+            Operation operation,
+            Instant occurredAt) {
         return new SubscriptionEvent(
                 phoneNumber.value(),
                 current,
@@ -93,7 +94,7 @@ public class SubscriptionEvent {
                 channel.id(),
                 operation,
                 EventOutcome.DENIED_BY_GATE,
-                Instant.now());
+                occurredAt);
     }
 
     public Long id() { return id; }
