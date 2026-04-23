@@ -15,11 +15,11 @@ public record PhoneNumber(@Column(name = "phone_number", length = 16, nullable =
 
     public PhoneNumber {
         if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException("전화번호가 비어있습니다.");
+            throw new InvalidPhoneNumberException("전화번호가 비어있습니다.");
         }
         String digits = value.replaceAll("[\\s-]", "");
         if (!MOBILE_PATTERN.matcher(digits).matches()) {
-            throw new IllegalArgumentException("국내 휴대폰 번호 형식이 아닙니다: " + value);
+            throw new InvalidPhoneNumberException("국내 휴대폰 번호 형식이 아닙니다: " + value);
         }
         value = toCanonical(digits);
     }

@@ -20,7 +20,7 @@ class PhoneNumberTest {
     @ValueSource(strings = {"", " ", "010", "02-123-4567", "abc", "+821012345678", "010-1234-567"})
     void should_reject_non_korean_mobile_format(String raw) {
         assertThatThrownBy(() -> PhoneNumber.of(raw))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(InvalidPhoneNumberException.class);
     }
 
     @Test
@@ -32,7 +32,7 @@ class PhoneNumberTest {
     @Test
     void should_reject_null() {
         assertThatThrownBy(() -> PhoneNumber.of(null))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(InvalidPhoneNumberException.class);
     }
 
     @Test
