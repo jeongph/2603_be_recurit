@@ -33,6 +33,19 @@ docker run --rm -d --name artinus-mysql \
 ./gradlew bootRun
 ```
 
+### 컨테이너 실행 (선택)
+
+```bash
+docker build -t artinus-subscription:local .
+docker run --rm -p 8080:8080 \
+  -e DB_HOST=host.docker.internal \
+  -e DB_USERNAME=artinus \
+  -e DB_PASSWORD=artinus \
+  artinus-subscription:local
+```
+
+MySQL 컨테이너와 동일 네트워크로 묶거나 `host.docker.internal` 로 호스트의 MySQL 을 가리킬 수 있다.
+
 ### 테스트
 
 ```bash
@@ -102,13 +115,16 @@ OpenAPI 정의: `http://localhost:8080/v3/api-docs`
 - **기본 실행**: stub 모드. csrng stub 은 `Random` 기반으로 ALLOWED/DENIED 를 확률적으로 반환하며 50-200ms 레이턴시를 시뮬레이션. LLM stub 은 이벤트 시퀀스를 한국어 템플릿으로 조합.
 - **이력 요약 대상**: 성공(`SUCCEEDED`) 이벤트 최근 20건. `history.summary.event-limit` 프로퍼티로 조정.
 - **트랜잭션 커밋/롤백 해석**: 요구사항의 "트랜잭션" 을 단일 DB 트랜잭션이 아닌 비즈니스 트랜잭션 의미로 해석. `random=1` 은 상태 전이 확정, `random=0` 은 상태 전이 거부로 대응.
-- **K8s/ArgoCD**: 배포 매니페스트 및 ArgoCD Application 은 별도 GitOps 리포지토리에서 관리되는 것을 가정. 본 저장소는 Dockerfile 과 GitHub Actions 까지 제공.
+- **K8s/ArgoCD**: 배포 매니페스트 및 ArgoCD Application 은 별도 GitOps 리포지토리에서 관리되는 것을 가정. 본 저장소는 Dockerfile 및 GitHub Actions 워크플로까지 제공한다.
 
 ## 배포
 
-- 컨테이너 이미지: GHCR (GitHub Container Registry)
-- CI/CD: `.github/workflows/deploy.yml` — 테스트 → Docker 빌드 → GHCR 푸시 → GitOps 매니페스트 업데이트(placeholder)
-- 런타임: GKE 위에서 ArgoCD(GitOps) 로 배포되는 것을 가정.
+- 컨테이너 이미지: GHCR (`ghcr.io/<owner>/<repo>`), 태그는 커밋 SHA 고정.
+- CI/CD: `.github/workflows/deploy.yml`
+  - `test` — 모든 push/PR 에서 `./gradlew check` 실행 + JaCoCo 리포트 아티팩트 업로드.
+  - `build-and-push` — `main` push 시 Docker 빌드 및 GHCR 푸시 (buildx + GHA 캐시).
+  - `update-gitops` — GitOps 레포지토리의 kustomization.yaml 이미지 태그 갱신(placeholder).
+- 런타임: ArgoCD 가 GitOps 레포를 감지하여 GKE 클러스터에 동기화하는 것을 가정.
 
 ## 디렉토리 구조
 
@@ -135,12 +151,5 @@ src/main/java/com/artinus/
 ```
 
 ## 확장 포인트 (본 구현에서 제외)
-
-- 이력 요약 캐싱 (`@Cacheable` + `@CacheEvict`)
-- 요청 멱등성 (`Idempotency-Key` 헤더)
-- 카나리/블루-그린 배포 (Argo Rollouts)
-- 채널별 차별 정책 (`Channel` enum 상수 오버라이드 또는 `ChannelPolicy` 인터페이스 승격)
-- WireMock 기반 HTTP 클라이언트 레벨 단위 테스트
-- Spring Security 기반 Actuator 인증 (현재는 `health/info/prometheus` 만 기본 노출)
 
 확장 시나리오 상세는 `docs/prd.md` §15 참조.
