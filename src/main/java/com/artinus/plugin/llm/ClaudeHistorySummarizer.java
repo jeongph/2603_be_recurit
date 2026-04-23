@@ -3,6 +3,7 @@ package com.artinus.plugin.llm;
 import com.artinus.history.domain.EventOutcome;
 import com.artinus.history.service.HistoryEntry;
 import com.artinus.history.service.port.HistorySummarizer;
+import com.artinus.history.service.port.SummarizerUnavailableException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import org.springframework.context.annotation.Profile;
@@ -29,8 +30,8 @@ public class ClaudeHistorySummarizer implements HistorySummarizer {
     }
 
     @Override
-    @Retry(name = "llm")
-    @CircuitBreaker(name = "llm")
+    @Retry(name = "llm", fallbackMethod = "fallback")
+    @CircuitBreaker(name = "llm", fallbackMethod = "fallback")
     public String summarize(List<HistoryEntry> entries) {
         List<HistoryEntry> succeeded = entries.stream()
                 .filter(e -> e.outcome() == EventOutcome.SUCCEEDED)
@@ -41,6 +42,11 @@ public class ClaudeHistorySummarizer implements HistorySummarizer {
         }
 
         return client.generateMessage(buildPrompt(succeeded));
+    }
+
+    @SuppressWarnings("unused")
+    private String fallback(List<HistoryEntry> entries, Throwable t) {
+        throw new SummarizerUnavailableException("llm summarizer unavailable: " + t.getMessage(), t);
     }
 
     private String buildPrompt(List<HistoryEntry> entries) {

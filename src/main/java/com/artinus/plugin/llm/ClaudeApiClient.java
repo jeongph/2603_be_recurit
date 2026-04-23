@@ -44,13 +44,13 @@ class ClaudeApiClient {
                     .body(ClaudeMessageResponse.class);
 
             if (body == null || body.content() == null || body.content().isEmpty()) {
-                throw new SummarizerUnavailableException("claude returned empty response", null);
+                throw new SummarizerUnavailableException("claude returned empty response");
             }
             return body.content().stream()
                     .filter(c -> "text".equals(c.type()))
                     .map(ClaudeMessageResponse.Content::text)
                     .findFirst()
-                    .orElseThrow(() -> new SummarizerUnavailableException("no text content", null));
+                    .orElseThrow(() -> new SummarizerUnavailableException("no text content"));
         } catch (RestClientException e) {
             throw new SummarizerUnavailableException("claude call failed", e);
         }
