@@ -35,12 +35,15 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus,circuitbreakers,retries
+        # circuitbreakers, retries 는 외부 의존성 토폴로지를 추론 가능하게 하므로
+        # 기본 프로파일에서는 노출하지 않는다. 배포 시 Spring Security +
+        # 내부망 제한 뒤에서 별도 프로파일로 추가한다.
+        include: health,info,prometheus
   endpoint:
     health:
       probes:
         enabled: true
-      show-details: when-authorized
+      show-details: never
   metrics:
     tags:
       application: subscription-service
