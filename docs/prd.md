@@ -175,7 +175,7 @@ controller → service → domain
 
 - 도메인과 application은 plugin의 구체 구현을 알지 않는다.
 - Spring DI가 런타임에 port 구현체를 바인딩한다.
-- Bounded Context 간 상호 참조는 금지한다.
+- Bounded Context 간 상호 참조는 원칙적으로 금지하나, `subscription.domain`의 값 객체·enum·도메인 이벤트(`PhoneNumber`, `SubscriptionState`, `Channel`, `ChannelCapability`, `Operation`, `SubscriptionChanged`)는 Shared Kernel로 취급하여 `history` Context가 참조할 수 있다. 역방향은 금지한다.
 
 ## 6. 도메인 모델
 
@@ -234,7 +234,7 @@ public SubscriptionChanged changeTo(
     SubscriptionState previous = this.state;
     this.state = target;
     return new SubscriptionChanged(
-        this.phoneNumber, previous, target, channel.id(), op, Instant.now());
+        this.phoneNumber, previous, target, channel, op, Instant.now());
 }
 ```
 
