@@ -14,7 +14,7 @@ public record HistoryResponse(
     public static HistoryResponse from(HistoryView view) {
         return new HistoryResponse(
                 view.phoneNumber(),
-                view.events().stream().map(HistoryItemResponse::from).toList(),
+                view.entries().stream().map(HistoryItemResponse::from).toList(),
                 view.summary(),
                 view.summaryStatus()
         );

@@ -1,9 +1,8 @@
 package com.artinus.plugin.stub;
 
 import com.artinus.history.domain.EventOutcome;
-import com.artinus.history.domain.SubscriptionEvent;
+import com.artinus.history.service.HistoryEntry;
 import com.artinus.history.service.port.HistorySummarizer;
-import com.artinus.subscription.domain.Channel;
 import com.artinus.subscription.domain.SubscriptionState;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -13,6 +12,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 @Component
 @Profile("stub")
@@ -23,8 +23,8 @@ public class StubHistorySummarizer implements HistorySummarizer {
     private static final ZoneId KST = ZoneId.of("Asia/Seoul");
 
     @Override
-    public String summarize(List<SubscriptionEvent> events) {
-        List<SubscriptionEvent> succeeded = events.stream()
+    public String summarize(List<HistoryEntry> entries) {
+        List<HistoryEntry> succeeded = entries.stream()
                 .filter(e -> e.outcome() == EventOutcome.SUCCEEDED)
                 .toList();
 
@@ -32,29 +32,17 @@ public class StubHistorySummarizer implements HistorySummarizer {
             return "구독 이력이 없습니다.";
         }
 
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < succeeded.size(); i++) {
-            SubscriptionEvent e = succeeded.get(i);
-            LocalDate date = e.occurredAt().atZone(KST).toLocalDate();
-            String channelName = Channel.fromId(e.channelId()).displayName();
-            String stateKr = koreanStateName(e.to());
+        return succeeded.stream()
+                .map(this::formatSegment)
+                .collect(Collectors.joining(", ", "", "."));
+    }
 
-            if (i == 0) {
-                sb.append(KR_FORMAT.format(date))
-                  .append(" ").append(channelName)
-                  .append("을(를) 통해 ").append(stateKr).append("으로 가입한 뒤,");
-            } else if (i == succeeded.size() - 1) {
-                sb.append(" ").append(KR_FORMAT.format(date))
-                  .append(" ").append(channelName)
-                  .append("에서 ").append(stateKr).append(" 상태로 변경하였습니다.");
-            } else {
-                sb.append(" ").append(KR_FORMAT.format(date))
-                  .append(" ").append(channelName)
-                  .append("에서 ").append(stateKr).append("으로 변경,");
-            }
-        }
-
-        return sb.toString();
+    private String formatSegment(HistoryEntry entry) {
+        LocalDate date = entry.occurredAt().atZone(KST).toLocalDate();
+        return "%s %s에서 %s 상태로 변경".formatted(
+                KR_FORMAT.format(date),
+                entry.channel().displayName(),
+                koreanStateName(entry.to()));
     }
 
     private String koreanStateName(SubscriptionState state) {

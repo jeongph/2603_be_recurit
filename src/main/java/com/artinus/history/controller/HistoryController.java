@@ -22,7 +22,7 @@ public class HistoryController {
     @GetMapping
     public HistoryResponse query(
             @RequestParam @NotBlank String phoneNumber,
-            @RequestParam(defaultValue = "20") int limit) {
+            @RequestParam(required = false) Integer limit) {
         HistoryView view = service.query(new HistoryQuery(phoneNumber, limit));
         return HistoryResponse.from(view);
     }

@@ -1,6 +1,5 @@
 package com.artinus.history.service;
 
-import com.artinus.history.domain.SubscriptionEvent;
 import com.artinus.history.repository.SubscriptionEventRepository;
 import com.artinus.history.service.port.HistorySummarizer;
 import com.artinus.history.service.port.SummarizerUnavailableException;
@@ -11,6 +10,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -34,28 +35,31 @@ public class HistoryService {
     @Transactional(readOnly = true)
     public HistoryView query(HistoryQuery query) {
         PhoneNumber phoneNumber = PhoneNumber.of(query.phoneNumber());
-        int limit = query.limit() > 0 ? query.limit() : defaultLimit;
+        int limit = query.limit() != null ? query.limit() : defaultLimit;
 
-        List<SubscriptionEvent> events = eventRepository
+        // 조회 결과는 최신 이벤트가 앞에 오는 내림차순. API 응답도 이 순서를 유지한다.
+        List<HistoryEntry> entries = eventRepository
                 .findByPhoneNumberOrderByOccurredAtDesc(phoneNumber)
                 .stream()
                 .limit(limit)
+                .map(HistoryEntry::from)
                 .toList();
 
-        SummaryOutcome outcome = buildSummary(events);
+        SummaryOutcome outcome = buildSummary(entries);
 
-        return new HistoryView(phoneNumber.value(), events, outcome.summary, outcome.status);
+        return new HistoryView(phoneNumber.value(), entries, outcome.summary, outcome.status);
     }
 
-    private SummaryOutcome buildSummary(List<SubscriptionEvent> events) {
+    private SummaryOutcome buildSummary(List<HistoryEntry> entries) {
+        // 요약은 서사 흐름이므로 시간 오름차순으로 전달한다.
+        List<HistoryEntry> chronological = new ArrayList<>(entries);
+        Collections.reverse(chronological);
+
         try {
-            String summary = summarizer.summarize(events);
+            String summary = summarizer.summarize(chronological);
             return new SummaryOutcome(summary, SummaryStatus.GENERATED);
         } catch (SummarizerUnavailableException e) {
             log.warn("summarizer unavailable, returning partial response", e);
-            return new SummaryOutcome(null, SummaryStatus.UNAVAILABLE);
-        } catch (RuntimeException e) {
-            log.warn("summarizer threw unexpected exception, returning partial response", e);
             return new SummaryOutcome(null, SummaryStatus.UNAVAILABLE);
         }
     }

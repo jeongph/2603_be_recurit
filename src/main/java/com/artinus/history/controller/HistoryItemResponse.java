@@ -1,8 +1,7 @@
 package com.artinus.history.controller;
 
 import com.artinus.history.domain.EventOutcome;
-import com.artinus.history.domain.SubscriptionEvent;
-import com.artinus.subscription.domain.Channel;
+import com.artinus.history.service.HistoryEntry;
 import com.artinus.subscription.domain.Operation;
 import com.artinus.subscription.domain.SubscriptionState;
 
@@ -16,14 +15,14 @@ public record HistoryItemResponse(
         SubscriptionState to,
         EventOutcome outcome
 ) {
-    public static HistoryItemResponse from(SubscriptionEvent event) {
+    public static HistoryItemResponse from(HistoryEntry entry) {
         return new HistoryItemResponse(
-                event.occurredAt(),
-                Channel.fromId(event.channelId()).displayName(),
-                event.operation(),
-                event.from(),
-                event.to(),
-                event.outcome()
+                entry.occurredAt(),
+                entry.channel().displayName(),
+                entry.operation(),
+                entry.from(),
+                entry.to(),
+                entry.outcome()
         );
     }
 }

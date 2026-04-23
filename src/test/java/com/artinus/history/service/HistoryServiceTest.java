@@ -40,18 +40,20 @@ class HistoryServiceTest {
                     SubscriptionState.NONE, SubscriptionState.GENERAL,
                     Channel.HOMEPAGE, Operation.SUBSCRIBE, Instant.now())));
 
-            HistoryView view = service.query(new HistoryQuery("010-1111-2222", 20));
+            HistoryView view = service.query(new HistoryQuery("010-1111-2222", null));
 
-            assertThat(view.events()).hasSize(1);
-            assertThat(view.summary()).contains("홈페이지");
+            assertThat(view.entries()).hasSize(1);
+            assertThat(view.summary())
+                    .contains("홈페이지")
+                    .endsWith(".");
             assertThat(view.summaryStatus()).isEqualTo(SummaryStatus.GENERATED);
         }
 
         @Test
         void query_shouldReturnEmpty_whenNoEvents() {
-            HistoryView view = service.query(new HistoryQuery("010-9999-9999", 20));
+            HistoryView view = service.query(new HistoryQuery("010-9999-9999", null));
 
-            assertThat(view.events()).isEmpty();
+            assertThat(view.entries()).isEmpty();
             assertThat(view.summary()).contains("이력이 없");
             assertThat(view.summaryStatus()).isEqualTo(SummaryStatus.GENERATED);
         }
@@ -78,9 +80,9 @@ class HistoryServiceTest {
                     SubscriptionState.NONE, SubscriptionState.GENERAL,
                     Channel.HOMEPAGE, Operation.SUBSCRIBE, Instant.now())));
 
-            HistoryView view = service.query(new HistoryQuery("010-1111-2222", 20));
+            HistoryView view = service.query(new HistoryQuery("010-1111-2222", null));
 
-            assertThat(view.events()).hasSize(1);
+            assertThat(view.entries()).hasSize(1);
             assertThat(view.summary()).isNull();
             assertThat(view.summaryStatus()).isEqualTo(SummaryStatus.UNAVAILABLE);
         }

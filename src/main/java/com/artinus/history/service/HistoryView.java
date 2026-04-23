@@ -1,12 +1,10 @@
 package com.artinus.history.service;
 
-import com.artinus.history.domain.SubscriptionEvent;
-
 import java.util.List;
 
 public record HistoryView(
         String phoneNumber,
-        List<SubscriptionEvent> events,
+        List<HistoryEntry> entries,
         String summary,
         SummaryStatus summaryStatus
 ) {
