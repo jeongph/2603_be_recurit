@@ -55,7 +55,7 @@ class SubscriptionServiceTest {
             assertThat(saved.state()).isEqualTo(SubscriptionState.GENERAL);
 
             java.util.List<SubscriptionEvent> events = eventRepository
-                    .findByPhoneNumberOrderByOccurredAtDesc("010-1234-5678");
+                    .findByPhoneNumberOrderByOccurredAtDesc(PhoneNumber.of("010-1234-5678"));
             assertThat(events).hasSize(1);
             assertThat(events.get(0).outcome()).isEqualTo(EventOutcome.SUCCEEDED);
         }
@@ -97,7 +97,7 @@ class SubscriptionServiceTest {
             assertThat(result.outcome()).isEqualTo(ChangeOutcome.DENIED_BY_GATE);
             assertThat(result.currentState()).isEqualTo(SubscriptionState.NONE);
             assertThat(subscriptionRepository.count()).isEqualTo(0);
-            assertThat(eventRepository.findByPhoneNumberOrderByOccurredAtDesc("010-1234-5678"))
+            assertThat(eventRepository.findByPhoneNumberOrderByOccurredAtDesc(PhoneNumber.of("010-1234-5678")))
                     .hasSize(1)
                     .allMatch(e -> e.outcome() == EventOutcome.DENIED_BY_GATE);
         }
