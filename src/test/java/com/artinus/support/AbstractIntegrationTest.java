@@ -9,7 +9,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 @SpringBootTest
 @Testcontainers
-@ActiveProfiles("test")
+@ActiveProfiles({"stub", "test"})
 public abstract class AbstractIntegrationTest {
 
     @Container

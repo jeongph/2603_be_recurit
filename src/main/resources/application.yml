@@ -2,10 +2,13 @@ spring:
   application:
     name: subscription-service
 
+  profiles:
+    active: stub
+
   datasource:
-    url: jdbc:mysql://localhost:3306/artinus?allowPublicKeyRetrieval=true&useSSL=false
-    username: artinus
-    password: artinus
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:artinus}?allowPublicKeyRetrieval=true&useSSL=false
+    username: ${DB_USERNAME:artinus}
+    password: ${DB_PASSWORD:artinus}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
