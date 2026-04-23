@@ -67,8 +67,10 @@ com.artinus
 
 ## 외부 의존성과 Stub 전략
 
-- 기본 실행 프로파일은 stub이다. 외부 자격증명 없이 `./gradlew bootRun` 으로 전체 기능이 동작해야 한다.
-- 실제 외부 연동은 Spring 프로파일로 활성화한다: `real-csrng`, `real-llm`.
+- 기본 실행 프로파일은 `stub`이다. `application.yml`의 `spring.profiles.active: stub`으로 선언된다.
+- stub 구현체는 `@Profile("stub")`로 활성화한다.
+- 실제 외부 연동은 `spring.profiles.active=real-csrng,real-llm`으로 교체 활성화하며, 실제 구현체는 `@Profile("real-csrng")` / `@Profile("real-llm")`를 사용한다.
+- 통합 테스트는 `@ActiveProfiles({"stub", "test"})`로 stub을 함께 활성화한다.
 - `application-real-*.yml`, `application-local*.yml`은 `.gitignore`로 차단된다.
 - stub 구현체는 테스트 보조물이 아니라 port의 1급 구현체이며, 실제와 유사한 응답(확률적/템플릿 기반)을 제공한다.
 
