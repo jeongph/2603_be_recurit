@@ -1,5 +1,6 @@
 package com.artinus.subscription.domain;
 
+import com.artinus.common.logging.PhoneNumberMasker;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 
@@ -19,7 +20,8 @@ public record PhoneNumber(@Column(name = "phone_number", length = 16, nullable =
         }
         String digits = value.replaceAll("[\\s-]", "");
         if (!MOBILE_PATTERN.matcher(digits).matches()) {
-            throw new InvalidPhoneNumberException("국내 휴대폰 번호 형식이 아닙니다: " + value);
+            throw new InvalidPhoneNumberException(
+                    "국내 휴대폰 번호 형식이 아닙니다: " + PhoneNumberMasker.mask(value));
         }
         value = toCanonical(digits);
     }
