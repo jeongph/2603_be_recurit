@@ -14,6 +14,7 @@ public abstract class AbstractIntegrationTest {
 
     @Container
     @ServiceConnection
+    @SuppressWarnings("resource")
     static final MySQLContainer<?> MYSQL = new MySQLContainer<>("mysql:8.0")
             .withDatabaseName("artinus")
             .withUsername("artinus")
