@@ -3,16 +3,6 @@ name: Build and Deploy
 on:
   push:
     branches: [main]
-    paths:
-      - 'src/**'
-      - 'build.gradle'
-      - 'settings.gradle'
-      - 'gradle/**'
-      - 'gradlew'
-      - 'gradlew.bat'
-      - 'Dockerfile'
-      - '.dockerignore'
-      - '.github/workflows/deploy.yml'
   pull_request:
     branches: [main]
 
@@ -20,9 +10,14 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
+# 최소 권한 default. 각 job 이 필요한 권한만 추가로 선언한다.
+permissions: {}
+
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
@@ -72,8 +67,8 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=raw,value=latest
             type=sha,prefix=,format=long
+            type=ref,event=branch
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -89,11 +84,14 @@ jobs:
     needs: build-and-push
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    permissions: {}
     steps:
+      # 실제 구현에서는 별도 GitOps 레포지토리에 PAT 을 사용해 checkout 한 뒤
+      # kustomize edit set image 등으로 이미지 태그를 갱신하고 커밋/push 한다.
+      # ArgoCD 가 해당 레포지토리를 감지하여 GKE 클러스터에 동기화한다.
+      # 본 과제에서는 이 단계가 동작한다는 것만 표시한다.
       - name: Update GitOps manifest (placeholder)
         env:
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          echo "GitOps 레포지토리의 kustomization.yaml 에서 이미지 태그를 ${IMAGE_TAG} 로 업데이트합니다."
-          echo "ArgoCD 가 변경을 감지하여 GKE 클러스터에 동기화합니다."
-          echo "실제 GitOps 리포지토리 및 ArgoCD 설정은 본 과제 범위 외입니다."
+          echo "이미지 태그 ${IMAGE_TAG} 로 GitOps 매니페스트 갱신 예정."
