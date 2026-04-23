@@ -45,6 +45,62 @@ history:
   summary:
     event-limit: 20
 
+csrng:
+  base-url: https://csrng.net/csrng/csrng.php
+  min: 0
+  max: 1
+
+llm:
+  claude:
+    base-url: https://api.anthropic.com
+    api-key: ${ANTHROPIC_API_KEY:}
+    model: claude-haiku-4-5-20251001
+    max-tokens: 1024
+    timeout: 10s
+
+resilience4j:
+  retry:
+    instances:
+      csrng:
+        maxAttempts: 3
+        waitDuration: 100ms
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2.0
+        enableRandomizedWait: true
+        randomizedWaitFactor: 0.5
+        retryExceptions:
+          - org.springframework.web.client.ResourceAccessException
+          - org.springframework.web.client.HttpServerErrorException
+        ignoreExceptions:
+          - com.artinus.subscription.service.port.GateUnavailableException
+      llm:
+        maxAttempts: 2
+        waitDuration: 500ms
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2.0
+        enableRandomizedWait: true
+        randomizedWaitFactor: 0.5
+        retryExceptions:
+          - org.springframework.web.client.ResourceAccessException
+          - org.springframework.web.client.HttpServerErrorException
+        ignoreExceptions:
+          - com.artinus.history.service.port.SummarizerUnavailableException
+  circuitbreaker:
+    instances:
+      csrng:
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 30s
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+      llm:
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 30s
+
 logging:
   level:
     com.artinus: INFO

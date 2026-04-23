@@ -1,6 +1,5 @@
 package com.artinus.plugin.stub;
 
-import com.artinus.history.domain.EventOutcome;
 import com.artinus.history.service.HistoryEntry;
 import com.artinus.history.service.port.HistorySummarizer;
 import com.artinus.subscription.domain.SubscriptionState;
@@ -24,15 +23,7 @@ public class StubHistorySummarizer implements HistorySummarizer {
 
     @Override
     public String summarize(List<HistoryEntry> entries) {
-        List<HistoryEntry> succeeded = entries.stream()
-                .filter(e -> e.outcome() == EventOutcome.SUCCEEDED)
-                .toList();
-
-        if (succeeded.isEmpty()) {
-            return "구독 이력이 없습니다.";
-        }
-
-        return succeeded.stream()
+        return entries.stream()
                 .map(this::formatSegment)
                 .collect(Collectors.joining(", ", "", "."));
     }
