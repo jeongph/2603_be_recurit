@@ -35,11 +35,15 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus
+        include: health,info,metrics,prometheus,circuitbreakers,retries
   endpoint:
     health:
       probes:
         enabled: true
+      show-details: when-authorized
+  metrics:
+    tags:
+      application: subscription-service
 
 history:
   summary:
