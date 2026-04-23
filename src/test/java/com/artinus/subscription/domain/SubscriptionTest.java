@@ -59,4 +59,24 @@ class SubscriptionTest {
         assertThat(event.from()).isEqualTo(PREMIUM);
         assertThat(event.to()).isEqualTo(GENERAL);
     }
+
+    @Test
+    void changeTo_shouldKeepStateUnchanged_whenTransitionInvalid() {
+        Subscription s = aSubscription().state(PREMIUM).build();
+
+        assertThatThrownBy(() -> s.changeTo(PREMIUM, Channel.HOMEPAGE, Operation.SUBSCRIBE))
+                .isInstanceOf(IllegalStateTransitionException.class);
+
+        assertThat(s.state()).isEqualTo(PREMIUM);
+    }
+
+    @Test
+    void changeTo_shouldKeepStateUnchanged_whenChannelNotAllowed() {
+        Subscription s = aSubscription().state(NONE).build();
+
+        assertThatThrownBy(() -> s.changeTo(GENERAL, Channel.CALL_CENTER, Operation.SUBSCRIBE))
+                .isInstanceOf(ChannelNotAllowedException.class);
+
+        assertThat(s.state()).isEqualTo(NONE);
+    }
 }
