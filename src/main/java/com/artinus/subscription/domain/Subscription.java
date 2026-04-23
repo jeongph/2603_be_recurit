@@ -15,7 +15,7 @@ import java.time.Instant;
 public class Subscription {
 
     @EmbeddedId
-    private PhoneNumberId phoneNumberId;
+    private PhoneNumber phoneNumber;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 16)
@@ -29,7 +29,7 @@ public class Subscription {
     }
 
     private Subscription(PhoneNumber phoneNumber, SubscriptionState state) {
-        this.phoneNumberId = new PhoneNumberId(phoneNumber.value());
+        this.phoneNumber = phoneNumber;
         this.state = state;
     }
 
@@ -38,6 +38,7 @@ public class Subscription {
     }
 
     public SubscriptionChanged changeTo(SubscriptionState target, Channel channel, Operation op) {
+        // 채널 허용 검증이 먼저: "채널이 이 operation 자체를 못 하면 상태 전이는 볼 필요도 없다"
         if (!channel.supports(op)) {
             throw new ChannelNotAllowedException(channel, op);
         }
@@ -46,12 +47,11 @@ public class Subscription {
         }
         SubscriptionState previous = this.state;
         this.state = target;
-        return new SubscriptionChanged(
-                this.phoneNumber(), previous, target, channel, op, Instant.now());
+        return new SubscriptionChanged(phoneNumber, previous, target, channel, op, Instant.now());
     }
 
     public PhoneNumber phoneNumber() {
-        return PhoneNumber.of(phoneNumberId.value());
+        return phoneNumber;
     }
 
     public SubscriptionState state() {
