@@ -52,11 +52,20 @@ dependencies {
 }
 
 tasks.named('test') {
-    useJUnitPlatform()
+    useJUnitPlatform {
+        excludeTags 'smoke'
+    }
     // docker-java 3.4.x defaults to API v1.32; Docker Engine 29+ rejects <1.40.
     // Pin the request API version to keep Testcontainers working on newer daemons.
     systemProperty 'api.version', '1.40'
     finalizedBy jacocoTestReport
+}
+
+tasks.register('smokeTest', Test) {
+    useJUnitPlatform {
+        includeTags 'smoke'
+    }
+    shouldRunAfter test
 }
 
 jacocoTestReport {
