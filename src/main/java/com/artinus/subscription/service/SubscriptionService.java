@@ -44,10 +44,11 @@ public class SubscriptionService {
 
         // Gate 호출은 트랜잭션 바깥. 네트워크 I/O 구간에 DB 락을 점유하지 않는다.
         GateResult gate = randomGate.request();
+        Instant occurredAt = Instant.now(clock);
 
         return gate == GateResult.ALLOWED
-                ? store.commitChange(phoneNumber, target, channel, op)
-                : store.recordDenial(phoneNumber, current, target, channel, op, Instant.now(clock));
+                ? store.commitChange(phoneNumber, target, channel, op, occurredAt)
+                : store.recordDenial(phoneNumber, current, target, channel, op, occurredAt);
     }
 
     private void validate(SubscriptionState current, SubscriptionState target,

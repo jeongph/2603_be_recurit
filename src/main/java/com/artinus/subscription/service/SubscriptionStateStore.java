@@ -35,10 +35,10 @@ public class SubscriptionStateStore {
 
     @Transactional
     public ChangeResult commitChange(PhoneNumber phoneNumber, SubscriptionState target,
-                                     Channel channel, Operation op) {
+                                     Channel channel, Operation op, Instant occurredAt) {
         Subscription subscription = subscriptionRepository.findByPhoneNumber(phoneNumber)
                 .orElseGet(() -> Subscription.of(phoneNumber, SubscriptionState.NONE));
-        SubscriptionChanged event = subscription.changeTo(target, channel, op);
+        SubscriptionChanged event = subscription.changeTo(target, channel, op, occurredAt);
         subscriptionRepository.save(subscription);
         eventRepository.save(SubscriptionEvent.succeeded(event));
         return new ChangeResult(ChangeOutcome.SUCCEEDED, subscription.state());
