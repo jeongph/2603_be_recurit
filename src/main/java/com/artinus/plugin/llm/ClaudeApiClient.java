@@ -18,6 +18,11 @@ class ClaudeApiClient {
     private final ClaudeProperties properties;
 
     ClaudeApiClient(ClaudeProperties properties) {
+        if (!properties.hasApiKey()) {
+            throw new IllegalStateException(
+                    "llm.claude.api-key 가 설정되지 않았습니다. "
+                            + "real-llm 프로파일을 활성화하려면 ANTHROPIC_API_KEY 환경변수를 주입하세요.");
+        }
         this.properties = properties;
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
         factory.setConnectTimeout(2000);

@@ -1,5 +1,6 @@
 package com.artinus.history.service;
 
+import com.artinus.history.domain.EventOutcome;
 import com.artinus.history.repository.SubscriptionEventRepository;
 import com.artinus.history.service.port.HistorySummarizer;
 import com.artinus.history.service.port.SummarizerUnavailableException;
@@ -18,6 +19,7 @@ import java.util.List;
 public class HistoryService {
 
     private static final Logger log = LoggerFactory.getLogger(HistoryService.class);
+    private static final String EMPTY_HISTORY_MESSAGE = "구독 이력이 없습니다.";
 
     private final SubscriptionEventRepository eventRepository;
     private final HistorySummarizer summarizer;
@@ -51,8 +53,17 @@ public class HistoryService {
     }
 
     private SummaryOutcome buildSummary(List<HistoryEntry> entries) {
+        // 요약 대상은 성공 이벤트만. 거부 이력은 목록에는 표시되지만 요약에는 반영하지 않는다.
+        List<HistoryEntry> succeeded = entries.stream()
+                .filter(e -> e.outcome() == EventOutcome.SUCCEEDED)
+                .toList();
+
+        if (succeeded.isEmpty()) {
+            return new SummaryOutcome(EMPTY_HISTORY_MESSAGE, SummaryStatus.GENERATED);
+        }
+
         // 요약은 서사 흐름이므로 시간 오름차순으로 전달한다.
-        List<HistoryEntry> chronological = new ArrayList<>(entries);
+        List<HistoryEntry> chronological = new ArrayList<>(succeeded);
         Collections.reverse(chronological);
 
         try {

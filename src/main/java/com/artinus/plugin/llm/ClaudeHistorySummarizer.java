@@ -1,6 +1,5 @@
 package com.artinus.plugin.llm;
 
-import com.artinus.history.domain.EventOutcome;
 import com.artinus.history.service.HistoryEntry;
 import com.artinus.history.service.port.HistorySummarizer;
 import com.artinus.history.service.port.SummarizerUnavailableException;
@@ -33,15 +32,7 @@ public class ClaudeHistorySummarizer implements HistorySummarizer {
     @Retry(name = "llm", fallbackMethod = "fallback")
     @CircuitBreaker(name = "llm", fallbackMethod = "fallback")
     public String summarize(List<HistoryEntry> entries) {
-        List<HistoryEntry> succeeded = entries.stream()
-                .filter(e -> e.outcome() == EventOutcome.SUCCEEDED)
-                .toList();
-
-        if (succeeded.isEmpty()) {
-            return "구독 이력이 없습니다.";
-        }
-
-        return client.generateMessage(buildPrompt(succeeded));
+        return client.generateMessage(buildPrompt(entries));
     }
 
     @SuppressWarnings("unused")
