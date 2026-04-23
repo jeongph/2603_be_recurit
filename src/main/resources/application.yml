@@ -45,6 +45,11 @@ history:
   summary:
     event-limit: 20
 
+csrng:
+  base-url: https://csrng.net/csrng/csrng.php
+  min: 0
+  max: 1
+
 resilience4j:
   retry:
     instances:
