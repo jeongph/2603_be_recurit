@@ -48,7 +48,12 @@ com.artinus
 - `controller` → `service` → `domain`
 - `service` → `port`(interface). `service`는 plugin의 구체 구현을 알지 않는다.
 - `plugin` → `port`(implements)
-- Bounded Context(`subscription`, `history`)는 상호 import하지 않는다.
+- Bounded Context(`subscription`, `history`)는 상호 import하지 않는다. 단 아래 Shared Kernel 예외.
+
+### Shared Kernel
+- `subscription.domain` 패키지의 값 객체·enum·도메인 이벤트(`PhoneNumber`, `SubscriptionState`, `Channel`, `ChannelCapability`, `Operation`, `SubscriptionChanged`)는 Shared Kernel 로 간주하여 `history` Context 가 참조할 수 있다.
+- Shared Kernel 에 포함되는 타입은 두 Context 의 공통 어휘이며, 한쪽의 편의를 위해 일방적으로 바꾸지 않는다. 변경 시 양쪽 영향 확인이 필요하다.
+- 역방향(`subscription` 이 `history.domain` 을 참조)은 금지한다.
 
 ### 도메인 레이어
 - `domain` 패키지는 Java 표준 라이브러리와 JPA 어노테이션 외 의존이 없다. Spring annotation, Spring Data, HTTP, JSON 라이브러리 import를 허용하지 않는다.
